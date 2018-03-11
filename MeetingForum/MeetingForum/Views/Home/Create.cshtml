@@ -1,0 +1,38 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Meeting Forum</title>
+</head>
+<body>
+    <div>
+        <h3>Форма создания статьи</h3>
+        <form method="post" action="">
+            <table>
+                <tr>
+                    <td><p>Загрузите фотографию</p></td>
+                    <td><input type="file" name="Image" /> </td>        <!--атрибут name соответствует имени в бд-->
+                </tr>
+                <tr>
+                    <td><p>Введите заголовок статьи</p></td>
+                    <td><input type="text" name="Title" /> </td>
+                </tr>
+                <tr>
+                    <td><p>Введите текст статьи</p></td>
+                    <td>
+                        <input type="text" name="Text" />
+                    </td>
+                </tr>
+                <tr><td><input type="submit" value="Отправить" /> </td><td></td></tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>
+
