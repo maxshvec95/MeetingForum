@@ -1,7 +1,10 @@
 ﻿using MeetingForum.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -11,39 +14,52 @@ namespace MeetingForum.Controllers
     {
         //Создаем контекст данных
         ApplicationDbContext db = new ApplicationDbContext();
+        public bool IsAdmin { get; set; }
 
         public ActionResult Index()
         {
-            //получаем из бд все обьекты Article
-            IEnumerable<Article> articles = db.Articles;
-            //передаем все обьекты в динамическое свойство Articles в ViewBag
-            ViewBag.Articles = articles;
-            //возвращаем представление
-            return View();
+            return View(db.Articles);
         }
 
+        //public async Task<ActionResult> ForumList()       //Асинхронный метод Index
+        //{
+        //    IEnumerable<Article> articles = await db.Articles.ToListAsync();
+        //    ViewBag.Articles = articles;
+        //    return View("Index");
+        //}
+
         [HttpGet]
-        public ActionResult Show(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            ViewBag.Articles = db.Articles.Find(id);
-            return View();
+            Article article = await db.Articles.FindAsync(id);
+            //if (article.Id != id) { return RedirectToAction("Index"); }
+            return View(article);
         }
 
-        [HttpGet]
+        //[Authorize]
         public ActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        public string Create(Article article)
+        public ActionResult Create(Article article, HttpPostedFileBase uploadImage)
         {
-            article.DatePublish = DateTime.Now;
-            //добавляем статью в базу данных
-            db.Articles.Add(article);
-            //сохраняем в бд все изменения
-            db.SaveChanges();
-            return "Статья добавлена";
+            if (ModelState.IsValid && uploadImage != null)
+            {
+                byte[] imageData = null;
+                // считываем переданный файл в массив байтов
+                using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+                {
+                    imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+                }
+                // установка массива байтов
+                article.Image = imageData;
+                db.Articles.Add(article);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(article);
         }
     }
 }
