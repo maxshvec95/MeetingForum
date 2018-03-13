@@ -1,4 +1,6 @@
 ﻿using MeetingForum.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,29 +16,30 @@ namespace MeetingForum.Controllers
     {
         //Создаем контекст данных
         ApplicationDbContext db = new ApplicationDbContext();
-        public bool IsAdmin { get; set; }
+        //byte[] imageData = null;
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View(db.Articles);
+            IEnumerable<Article> articles = await db.Articles.ToListAsync();
+            return View(articles.Reverse());
         }
-
-        //public async Task<ActionResult> ForumList()       //Асинхронный метод Index
-        //{
-        //    IEnumerable<Article> articles = await db.Articles.ToListAsync();
-        //    ViewBag.Articles = articles;
-        //    return View("Index");
-        //}
 
         [HttpGet]
-        public async Task<ActionResult> Details(int id)
+        public async Task<ActionResult> Details(int? id)
         {
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
             Article article = await db.Articles.FindAsync(id);
-            //if (article.Id != id) { return RedirectToAction("Index"); }
-            return View(article);
+            if (article != null)
+            {
+                return View(article);
+            }
+            return HttpNotFound();
         }
 
-        //[Authorize]
+        [Authorize(Roles = "admin")]
         public ActionResult Create()
         {
             return View();
@@ -45,13 +48,17 @@ namespace MeetingForum.Controllers
         [HttpPost]
         public ActionResult Create(Article article, HttpPostedFileBase uploadImage)
         {
-            if (ModelState.IsValid && uploadImage != null)
+            //if (ModelState.IsValid && uploadImage != null)
+            if (ModelState.IsValid)
             {
                 byte[] imageData = null;
                 // считываем переданный файл в массив байтов
-                using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+                if (uploadImage != null)
                 {
-                    imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+                    using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+                    {
+                        imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+                    }
                 }
                 // установка массива байтов
                 article.Image = imageData;
@@ -60,6 +67,107 @@ namespace MeetingForum.Controllers
                 return RedirectToAction("Index");
             }
             return View(article);
+        }
+
+        public async Task<ActionResult> EditArticle(int? id)
+        {
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
+            Article article = await db.Articles.FindAsync(id);
+            if (article != null)
+            {
+                return View(article);
+            }
+            return HttpNotFound();
+        }
+        [HttpPost]
+        public async Task<ActionResult> EditArticle(Article article, HttpPostedFileBase uploadImage)
+        {
+            if (ModelState.IsValid)
+            {
+                // считываем переданный файл в массив байтов
+                if (uploadImage != null)
+                {
+                    byte[] imageData = null;
+                    using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+                    {
+                        imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+                    }
+                    // установка массива байтов
+                    article.Image = imageData;
+                }
+                db.Entry(article).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            return View(article);
+
+            //if (ModelState.IsValid)
+            //{
+            //    if(uploadImage != null)
+            //    {
+            //        using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+            //        {
+            //            imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+            //        }
+            //    }
+            //    // установка массива байтов
+            //    article.Image = imageData;
+            //}
+            //if (article != null)
+            //{
+            //    db.Entry(article).State = EntityState.Modified;
+            //    await db.SaveChangesAsync();
+            //    return RedirectToAction("Index");
+            //}
+            //return HttpNotFound();
+        }
+
+        public async Task<ActionResult> DeleteArticle(int id)
+        {
+            Article article = await db.Articles.FindAsync(id);
+            if (article == null)
+            {
+                return HttpNotFound();
+            }
+            return View(article);
+        }
+        [HttpPost, ActionName("DeleteArticle")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteConfirmed(int id)
+        {
+            Article article = await db.Articles.FindAsync(id);
+            if(article == null)
+            {
+                return HttpNotFound();
+            }
+            db.Articles.Remove(article);
+            await db.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+
+
+        public ActionResult ViewUser()
+        {
+            IList<string> roles = new List<string> { "Роль не определена" };
+            ApplicationUserManager userManager = HttpContext.GetOwinContext()
+                                                    .GetUserManager<ApplicationUserManager>();
+            ApplicationUser user = userManager.FindByEmail(User.Identity.Name);
+            if (user != null)
+                roles = userManager.GetRoles(user.Id);
+            return View(roles);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

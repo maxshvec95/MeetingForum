@@ -1,12 +1,12 @@
 ﻿@model MeetingForum.Models.Article
 
 @{
-    ViewBag.Title = "Createe";
+    ViewBag.Title = "Редактирование статьи";
 }
 
-<h2>Createe</h2>
+<h2>EditArticle</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("EditArticle", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     
@@ -17,8 +17,14 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Image, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Image, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
+                <p>@if(Model.Image != null)
+                {
+                    @Html.Raw("<img style='max-width:400px; max-height:200px;' src=\"data:image/jpeg;base64," + Convert.ToBase64String(Model.Image) + "\" />")
+                }
+                </p>
+                <div class="edtitor-field">
+                <input type="file" name="uploadImage" />
+            </div>
             </div>
         </div>
 
@@ -56,7 +62,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Сохранить" class="btn btn-default" />
             </div>
         </div>
     </div>

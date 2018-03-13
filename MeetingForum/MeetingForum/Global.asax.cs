@@ -16,6 +16,7 @@ namespace MeetingForum
         {
             //Автоматическая миграция при запуске проекта
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<ApplicationDbContext, Migrations.Configuration>());
+            //Database.SetInitializer<ApplicationDbContext>(new AppDbInitializer());
 
 
             AreaRegistration.RegisterAllAreas();

@@ -1,13 +1,14 @@
 ﻿@model MeetingForum.Models.Article
 
 @{
-    ViewBag.Title = Model.Title;
+    ViewBag.Title = "DeleteArticle";
 }
 
-<h2>Details</h2>
+<h2>DeleteArticle</h2>
 
+<h3>Вы действительно хотите удалить статью?</h3>
 <div>
-    <h4>Article</h4>
+    <h4>Статья</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -54,9 +55,13 @@
         </dd>
 
     </dl>
+
+    @using (Html.BeginForm("DeleteArticle", "Home", FormMethod.Post)) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Удалить" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
 </div>
-<p>
-    @Html.ActionLink("Изменить", "EditArticle", new { id = Model.Id }) |
-    @Html.ActionLink("Удалить", "DeleteArticle", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
