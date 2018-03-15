@@ -12,17 +12,21 @@ namespace MeetingForum.Models
     {
         [ScaffoldColumn(false)]
         public int Id { get; set; }
+        [Display(Name = "Изображение")]
         public byte[] Image { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Введите заголовок")]
+        [Display(Name = "Заголовок")]
         public string Title { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Введите текст статьи")]
+        [Display(Name = "Текст")]
         public string Text { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Введите принятое решение")]
+        [Display(Name = "Принятое решение")]
         public string Accepted { get; set; }
 
         private DateTime? datePublish = null;
         [Required]
-        //[DefaultValue(typeof(DateTime), DateTime.Now.ToString("yyyy-MM-dd"))]
+        [Display(Name = "Дата публикации")]
         public DateTime DatePublish
         {
             get

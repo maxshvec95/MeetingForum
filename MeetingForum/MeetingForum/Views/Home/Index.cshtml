@@ -1,6 +1,4 @@
-﻿@model IEnumerable<MeetingForum.Models.Article>
-
-@{
+﻿@{
     ViewBag.Title = "Meeting Forum";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -14,11 +12,11 @@
         <th>Картинка</th>
     </tr>
     
-    @foreach (var item in Model)
+    @foreach (var item in ViewBag.Articles)
     {
         <tr>
             <td>
-                <a href="/Home/Details/@item.Id">@Html.DisplayFor(modelItem => item.Title)</a>
+                <a href="/Home/Details/@item.Id">@item.Title</a>
             </td>
             <td>
                 @if (item.Image != null)
@@ -27,6 +25,20 @@
                          + Convert.ToBase64String(item.Image) + "\" />")
                 }
                 
+            </td>
+        </tr>
+    }
+    @foreach (var item in ViewBag.Events)
+    {
+        <tr>
+            <td>
+                <a href="/Event/Details/@item.Id">@item.Title</a>
+            </td>
+            <td>
+                @item.Message
+            </td>
+            <td>
+                @item.Date.ToShortDateString()
             </td>
         </tr>
     }

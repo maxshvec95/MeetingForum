@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -16,12 +17,15 @@ namespace MeetingForum.Controllers
     {
         //Создаем контекст данных
         ApplicationDbContext db = new ApplicationDbContext();
-        //byte[] imageData = null;
 
         public async Task<ActionResult> Index()
         {
             IEnumerable<Article> articles = await db.Articles.ToListAsync();
-            return View(articles.Reverse());
+            ViewBag.Articles = articles.Reverse();
+            IEnumerable<Event> events = await db.Events.ToListAsync();
+            ViewBag.Events = events.Reverse();
+
+            return View();
         }
 
         [HttpGet]
@@ -44,7 +48,6 @@ namespace MeetingForum.Controllers
         {
             return View();
         }
-
         [HttpPost]
         public ActionResult Create(Article article, HttpPostedFileBase uploadImage)
         {
@@ -147,19 +150,17 @@ namespace MeetingForum.Controllers
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-
-
-
-        public ActionResult ViewUser()
-        {
-            IList<string> roles = new List<string> { "Роль не определена" };
-            ApplicationUserManager userManager = HttpContext.GetOwinContext()
-                                                    .GetUserManager<ApplicationUserManager>();
-            ApplicationUser user = userManager.FindByEmail(User.Identity.Name);
-            if (user != null)
-                roles = userManager.GetRoles(user.Id);
-            return View(roles);
-        }
+        
+        //public ActionResult ViewUser()
+        //{
+        //    IList<string> roles = new List<string> { "Роль не определена" };
+        //    ApplicationUserManager userManager = HttpContext.GetOwinContext()
+        //                                            .GetUserManager<ApplicationUserManager>();
+        //    ApplicationUser user = userManager.FindByEmail(User.Identity.Name);
+        //    if (user != null)
+        //        roles = userManager.GetRoles(user.Id);
+        //    return View(roles);
+        //}
 
         protected override void Dispose(bool disposing)
         {
