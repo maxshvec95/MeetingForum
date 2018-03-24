@@ -4,8 +4,6 @@
     ViewBag.Title = "Редактирование статьи";
 }
 
-<h2>EditArticle</h2>
-
 @using (Html.BeginForm("EditArticle", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()

@@ -18,6 +18,7 @@ namespace MeetingForum.Models
         [Display(Name = "Заголовок")]
         public string Title { get; set; }
         [Required(ErrorMessage = "Введите текст статьи")]
+        [DataType(DataType.MultilineText)]
         [Display(Name = "Текст")]
         public string Text { get; set; }
         [Required(ErrorMessage = "Введите принятое решение")]
@@ -27,6 +28,7 @@ namespace MeetingForum.Models
         private DateTime? datePublish = null;
         [Required]
         [Display(Name = "Дата публикации")]
+        [DataType(DataType.Date)]
         public DateTime DatePublish
         {
             get

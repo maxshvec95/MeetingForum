@@ -3,9 +3,6 @@
 @{
     ViewBag.Title = Model.Title;
 }
-
-<h2>Details</h2>
-
 <div>
     <h4>Article</h4>
     <hr />
@@ -15,7 +12,7 @@
         </dt>
 
         <dd>
-            @if(Model.Image != null)
+            @if (Model.Image != null)
             {
                 @Html.Raw("<img style='max-width:400px; max-height:200px;' src=\"data:image/jpeg;base64," + Convert.ToBase64String(Model.Image) + "\" />")
             }
@@ -52,9 +49,9 @@
         <dd>
             @Html.DisplayFor(model => model.DatePublish)
         </dd>
-
     </dl>
 </div>
+
 <p>
     @Html.ActionLink("Изменить", "EditArticle", new { id = Model.Id }) |
     @Html.ActionLink("Удалить", "DeleteArticle", new { id = Model.Id }) |

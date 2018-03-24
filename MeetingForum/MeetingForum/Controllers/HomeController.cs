@@ -18,24 +18,29 @@ namespace MeetingForum.Controllers
         //Создаем контекст данных
         ApplicationDbContext db = new ApplicationDbContext();
 
-        public async Task<ActionResult> Index()
+        //[OutputCache (Duration =360)]
+        public async Task<ActionResult> Index(int page=1)
         {
-            IEnumerable<Article> articles = await db.Articles.ToListAsync();
-            ViewBag.Articles = articles.Reverse();
-            IEnumerable<Event> events = await db.Events.ToListAsync();
-            ViewBag.Events = events.Reverse();
+            int pageSize = 3;   //кол-во обьектов на странице
+            IEnumerable<Event> events = await (db.Events.ToListAsync());
 
-            return View();
+            IEnumerable<Article> articles = db.Articles.ToList();
+            IEnumerable<Article> articlesRev = articles.Reverse();
+            IEnumerable<Article> articlesPerPages = articlesRev.Skip((page - 1) * pageSize).Take(pageSize);
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = articlesRev.Count() };
+            HomeViewModel hvm = new HomeViewModel { PageInfo = pageInfo, Articles = articlesPerPages, Events = events };
+            
+            return View(hvm);
         }
 
         [HttpGet]
-        public async Task<ActionResult> Details(int? id)
+        public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return HttpNotFound();
             }
-            Article article = await db.Articles.FindAsync(id);
+            Article article = db.Articles.Find(id);
             if (article != null)
             {
                 return View(article);
@@ -49,6 +54,7 @@ namespace MeetingForum.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(Article article, HttpPostedFileBase uploadImage)
         {
             //if (ModelState.IsValid && uploadImage != null)
@@ -72,13 +78,14 @@ namespace MeetingForum.Controllers
             return View(article);
         }
 
-        public async Task<ActionResult> EditArticle(int? id)
+        [HttpGet]
+        public ActionResult EditArticle(int? id)
         {
             if (id == null)
             {
                 return HttpNotFound();
             }
-            Article article = await db.Articles.FindAsync(id);
+            Article article = db.Articles.Find(id);
             if (article != null)
             {
                 return View(article);
@@ -86,7 +93,7 @@ namespace MeetingForum.Controllers
             return HttpNotFound();
         }
         [HttpPost]
-        public async Task<ActionResult> EditArticle(Article article, HttpPostedFileBase uploadImage)
+        public ActionResult EditArticle(Article article, HttpPostedFileBase uploadImage)
         {
             if (ModelState.IsValid)
             {
@@ -102,7 +109,7 @@ namespace MeetingForum.Controllers
                     article.Image = imageData;
                 }
                 db.Entry(article).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(article);
@@ -128,9 +135,9 @@ namespace MeetingForum.Controllers
             //return HttpNotFound();
         }
 
-        public async Task<ActionResult> DeleteArticle(int id)
+        public ActionResult DeleteArticle(int id)
         {
-            Article article = await db.Articles.FindAsync(id);
+            Article article = db.Articles.Find(id);
             if (article == null)
             {
                 return HttpNotFound();
@@ -139,17 +146,26 @@ namespace MeetingForum.Controllers
         }
         [HttpPost, ActionName("DeleteArticle")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(int id)
+        public ActionResult DeleteConfirmed(int id)
         {
-            Article article = await db.Articles.FindAsync(id);
+            Article article = db.Articles.Find(id);
             if(article == null)
             {
                 return HttpNotFound();
             }
             db.Articles.Remove(article);
-            await db.SaveChangesAsync();
+            db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public ActionResult JsonSearch (string name)
+        {
+            var jsondata = db.Articles.Where(a => a.Text.Contains(name)).ToList();
+            return PartialView(jsondata);
+        }
+
+
         
         //public ActionResult ViewUser()
         //{

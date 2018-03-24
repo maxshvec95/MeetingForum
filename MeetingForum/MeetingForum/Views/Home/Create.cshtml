@@ -4,15 +4,13 @@
     ViewBag.Title = "Создание статьи";
 }
 
-<h2>Create</h2>
-
 @using (Html.BeginForm("Create", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
 
-        <h4>Статья</h4>
+        <h4>Создание статьи</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">

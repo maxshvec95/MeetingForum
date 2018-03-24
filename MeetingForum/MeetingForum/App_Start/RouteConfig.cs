@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeetingForum.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -12,6 +13,7 @@ namespace MeetingForum
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            
 
             routes.MapRoute(
                 name: "Default",
